@@ -55,8 +55,6 @@ int main(int quantityOfArgumentsToReceived, char * listOfArguments[]){
     socketAddress.sin_addr = *( (struct  in_addr *) hostEntry -> h_addr);
     bzero(&(socketAddress.sin_zero), sizeof(unsigned char) * 8);
 
-    //printf("%s\n",inet_ntoa(*( (struct  in_addr *) hostEntry -> h_addr)));
-
     returnedInteger = connect( fileDescriptorSocket, (struct sockaddr *) &socketAddress, sizeof(struct sockaddr) ); //Conecta el socket
     reportErrorIfNecessary(returnedInteger, "connect");
 

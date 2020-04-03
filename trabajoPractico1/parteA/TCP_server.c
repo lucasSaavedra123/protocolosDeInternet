@@ -9,9 +9,9 @@
 
 #include <sys/types.h>  //Define los tipos de datos como lo es 'id_t'
 #include <sys/socket.h> //Define los tipos de datos como lo es 'sockaddr'
-#include <sys/wait.h>
+#include <sys/wait.h>   //Utiliza constantes para el uso de waitpid();
 
-#include <arpa/inet.h>
+#include <arpa/inet.h>  //Define operaciones de internet
 
 #define PORT 4500
 #define BACKLOG 5 //Define el largo maximo de la cola de conexiones pendientes del servidor
@@ -94,6 +94,8 @@ int main(){
             close(fileDescriptorNewClientSocket);
         }
 
+        while(waitpid(-1, NULL, WNOHANG) > 0);
+        //Espera que un proceso cambie de estado
     }
 
     return 0;
