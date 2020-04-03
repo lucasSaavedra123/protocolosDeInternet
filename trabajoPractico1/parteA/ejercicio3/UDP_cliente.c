@@ -9,8 +9,12 @@
 
 #include <sys/types.h>  //Define los tipos de datos como lo es 'id_t'
 #include <sys/socket.h> //Define los tipos de datos como lo es 'sockaddr'
+#include <sys/wait.h>   //Utiliza constantes para el uso de waitpid();
 
-#define PORT 4500
+#include <arpa/inet.h>  //Define operaciones de internet
+
+
+#define PORT 5500  // Puerto al cual nos conectaremos
 #define MAXDATASIZE 100
 
 void reportErrorIfNecessary(int value, char * string){
@@ -20,34 +24,47 @@ void reportErrorIfNecessary(int value, char * string){
     }
 }
 
-int main(int quantityOfArgumentsToReceived, char * listOfArguments[]){
-    printf("Cliente TCP\n");
+void receiveMessageFromKeyboard(char * string){
 
+    int index = 0;
+
+    char character = getchar();
+    fflush(stdin);
+
+    while(index < MAXDATASIZE && character != 10){
+        string[index] = character;
+        
+        fflush(stdin);
+        character = getchar();
+        
+        index++;
+    }
+
+    string[index] = '\0';
+
+}
+
+int main( int quantityOfArgumentsReceived, char * listOfArguments[] ){
+    printf("Client UDP\n");
     int fileDescriptorSocket;
-
-    //struct hostent es para poder representar un 'record', 'entry', o entrada en la base de datos del host
-    struct hostent * hostEntry;
     struct sockaddr_in socketAddress;
+    socklen_t socketAddressSize;
+    char * messageToSent = listOfArguments[2];
+    int returnedInteger;
+    struct hostent * hostEntry;
 
-    char messageToSent[] = "Thank You for the salute!";
-    char messageReceive[MAXDATASIZE];
-
-    int returnedInteger; //Lo uso para controlar errores
-    int quantityOfBytesReceived;
-
-    if(quantityOfArgumentsToReceived != 2){
-        fprintf(stderr, "usage: client hostname"); //Lo mandamos al stream de errores
+    if(quantityOfArgumentsReceived != 3){
+        fprintf(stderr, "usage: client hostname and message"); //Lo mandamos al stream de errores
         exit(1);
     }
 
     hostEntry = gethostbyname(listOfArguments[1]);
     // Devuelve la información acerca de un host con un nombre determinado
-
     if(hostEntry == NULL){
         reportErrorIfNecessary(-1, "gethostbyname");
     }
 
-    fileDescriptorSocket = socket(AF_INET, SOCK_STREAM, 0);
+    fileDescriptorSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     reportErrorIfNecessary(fileDescriptorSocket, "socket");
 
     socketAddress.sin_family = AF_INET;
@@ -55,26 +72,11 @@ int main(int quantityOfArgumentsToReceived, char * listOfArguments[]){
     socketAddress.sin_addr = *( (struct  in_addr *) hostEntry -> h_addr);
     bzero(&(socketAddress.sin_zero), sizeof(unsigned char) * 8);
 
-    returnedInteger = connect( fileDescriptorSocket, (struct sockaddr *) &socketAddress, sizeof(struct sockaddr) ); //Conecta el socket
-    reportErrorIfNecessary(returnedInteger, "connect");
+    returnedInteger = connect(fileDescriptorSocket, (struct sockaddr *) &(socketAddress), sizeof(struct sockaddr) );
+    reportErrorIfNecessary(returnedInteger,"connect");
 
-    while(1){
-
-        quantityOfBytesReceived = recv(fileDescriptorSocket, messageReceive, MAXDATASIZE, 0);
-        reportErrorIfNecessary(returnedInteger, "recv");
-
-        messageReceive[quantityOfBytesReceived] = '\0';
-
-        printf("Message Received: %s\n", messageReceive);
-
-        returnedInteger = send(fileDescriptorSocket, messageToSent, strlen(messageToSent) * sizeof(char), 0);
-        reportErrorIfNecessary(returnedInteger, "send");
-
-        printf("Message Sent!\n");
-
-        printf("\n");
-
-    }
+    returnedInteger = send(fileDescriptorSocket, messageToSent, strlen(messageToSent) * sizeof(char), 0);
+    reportErrorIfNecessary(returnedInteger, "send");
 
     close(fileDescriptorSocket);
 

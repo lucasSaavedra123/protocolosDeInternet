@@ -13,7 +13,7 @@
 
 #include <arpa/inet.h>  //Define operaciones de internet
 
-#define PORT 4500
+#define PORT 4700
 #define BACKLOG 5 //Define el largo maximo de la cola de conexiones pendientes del servidor
 #define MAXDATASIZE 100
 
@@ -23,6 +23,27 @@ void reportErrorIfNecessary(int value, char * string){
         exit(1);
     }
 }
+
+void receiveMessageFromKeyboard(char * string){
+
+    int index = 0;
+
+    char character = getchar();
+    fflush(stdin);
+
+    while(index < MAXDATASIZE && character != 10){
+        string[index] = character;
+        
+        fflush(stdin);
+        character = getchar();
+        
+        index++;
+    }
+
+    string[index] = '\0';
+
+}
+
 
 int main(){
     printf("Servidor Concurrente TCP\n");
@@ -35,8 +56,7 @@ int main(){
 
     socklen_t socketAddressSize;
 
-    char messageToSent[] = "Hello World!";
-    char messageReceive[MAXDATASIZE];
+    char messageToSent[MAXDATASIZE];
 
     int returnedInteger; //Lo uso para controlar errores
     int processId;
@@ -58,6 +78,7 @@ int main(){
     returnedInteger = bind( fileDescriptorSocket, (struct sockaddr *) &(serverSocketAddress), sizeof(struct sockaddr) );
     reportErrorIfNecessary(returnedInteger, "bind");
     
+
     returnedInteger = listen(fileDescriptorSocket, BACKLOG); //Ponemos en modo pasivo al servidor
     reportErrorIfNecessary(returnedInteger, "listen");
 
@@ -74,28 +95,31 @@ int main(){
         processId = fork();
 
         if(processId != 0){
-            returnedInteger = send(fileDescriptorNewClientSocket, messageToSent, strlen(messageToSent) * sizeof(char), 0); //Utilizamos send para poder mandar un mensaje sobre un socket
-            reportErrorIfNecessary(returnedInteger, "send");
-            printf("Message Sent!\n");
+            
+            while( strcmp(messageToSent, "disc") != 0 ){
 
-            //Utilizamos recv() para recibir mensajes que llegan a un socket
-            //Devuelve la cantidad de bytes recibidos
+                printf("Type the message to sent: ");
+                receiveMessageFromKeyboard(messageToSent);
+                printf("%s", messageToSent);
 
-            quantityOfBytesReceived = recv(fileDescriptorNewClientSocket, messageReceive, MAXDATASIZE, 0);
+                returnedInteger = send(fileDescriptorNewClientSocket, messageToSent, strlen(messageToSent) * sizeof(char), 0); //Utilizamos send para poder mandar un mensaje sobre un socket
+                reportErrorIfNecessary(returnedInteger, "send");
+                printf("\n");
+                printf("Message Sent!\n");
 
-            reportErrorIfNecessary(quantityOfBytesReceived, "recv");
+            }
 
-            messageReceive[quantityOfBytesReceived] = '\0';
-
-            printf("Message Received: %s\n", messageReceive);
-            printf("\n");
+            close(fileDescriptorNewClientSocket); //Elimina un descriptor de archivo (en este caso el del socket al cliente)
+            exit(1);
+            
         }
+
         else{
             close(fileDescriptorNewClientSocket);
         }
 
-        while(waitpid(-1, NULL, WNOHANG) > 0);
-        //Espera que un proceso cambie de estado
+        while(waitpid(-1, NULL, WNOHANG) > 0); //Espera que un proceso cambie de estado
+
     }
 
     return 0;
