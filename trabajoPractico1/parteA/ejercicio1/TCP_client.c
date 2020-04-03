@@ -29,7 +29,6 @@ int main(int quantityOfArgumentsReceived, char * listOfArguments[]){
     struct hostent * hostEntry;
     struct sockaddr_in socketAddress;
 
-    //char messageToSent[] = "Thank You for the salute!";
     char messageReceive[MAXDATASIZE];
 
     int returnedInteger; //Lo uso para controlar errores
@@ -57,9 +56,8 @@ int main(int quantityOfArgumentsReceived, char * listOfArguments[]){
 
     returnedInteger = connect( fileDescriptorSocket, (struct sockaddr *) &socketAddress, sizeof(struct sockaddr) ); //Conecta el socket
     reportErrorIfNecessary(returnedInteger, "connect");
-
-    quantityOfBytesReceived = recv(fileDescriptorSocket, messageReceive, MAXDATASIZE, 0);
-
+	
+    //Con 'disc' el servidor nos cierra la conexión
     while( strcmp(messageReceive, "disc") != 0 ){
 
         quantityOfBytesReceived = recv(fileDescriptorSocket, messageReceive, MAXDATASIZE, 0);
@@ -71,7 +69,7 @@ int main(int quantityOfArgumentsReceived, char * listOfArguments[]){
 
     }
 
-    printf("Connectiqon Closed!\n");
+    printf("Connection Closed!\n");
     close(fileDescriptorSocket);
 
     return 0;

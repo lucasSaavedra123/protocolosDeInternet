@@ -77,12 +77,18 @@ int main(){
         messageReceived[MAXDATASIZE-1] = '\0';
         printf("Message received from (%s): %s\n", inet_ntoa(clientAddress.sin_addr), messageReceived);
 
+        returnedInteger = connect(fileDescriptorSocket, (struct sockaddr *) &(clientAddress), addressSize);
+        reportErrorIfNecessary(returnedInteger, "connect");
+
         printf("Type answer: ");
         receiveMessageFromKeyboard(messageToSent);
+        
+        returnedInteger = send(fileDescriptorSocket, messageToSent, strlen(messageToSent) * sizeof(char),0);
+        reportErrorIfNecessary(returnedInteger,"send");
 
-        returnedInteger = sendto(fileDescriptorSocket, messageToSent, MAXDATASIZE, 0, (struct sockaddr *) &(clientAddress), addressSize);
+        /*returnedInteger = sendto(fileDescriptorSocket, messageToSent, MAXDATASIZE, 0, (struct sockaddr *) &(clientAddress), addressSize);
         reportErrorIfNecessary(returnedInteger, "sendto");
-
+        */
     }
 
     close(fileDescriptorSocket);

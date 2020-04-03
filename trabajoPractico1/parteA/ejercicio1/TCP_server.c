@@ -95,7 +95,7 @@ int main(){
         processId = fork();
 
         if(processId != 0){
-            
+            //Con 'disc' cerramos la conexión
             while( strcmp(messageToSent, "disc") != 0 ){
 
                 printf("Type the message to sent: ");
