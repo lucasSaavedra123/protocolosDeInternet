@@ -54,7 +54,7 @@ int main(){
 
     int hostAddressSize;
     int returnedInteger;
-
+    
     fileDescriptorSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     reportErrorIfNecessary(fileDescriptorSocket,"socket");
 
@@ -69,7 +69,7 @@ int main(){
     while(1){
         
         recv(fileDescriptorSocket, messageReceived, MAXDATASIZE, 0);
-        printf("%s", messageReceived);
+        printf("%s\n", messageReceived);
 
     }
 
