@@ -45,11 +45,13 @@ void receiveMessageFromKeyboard(char * string){
 }
 
 int main( int quantityOfArgumentsReceived, char * listOfArguments[] ){
-    printf("Client UDP\n");
+    printf("Cliente UDP\n");
     int fileDescriptorSocket;
     struct sockaddr_in socketAddress;
     socklen_t socketAddressSize;
     char * messageToSent = listOfArguments[2];
+    char messageToReceive[MAXDATASIZE];
+
     int returnedInteger;
     struct hostent * hostEntry;
 
@@ -77,6 +79,10 @@ int main( int quantityOfArgumentsReceived, char * listOfArguments[] ){
 
     returnedInteger = send(fileDescriptorSocket, messageToSent, strlen(messageToSent) * sizeof(char), 0);
     reportErrorIfNecessary(returnedInteger, "send");
+
+    returnedInteger = recv(fileDescriptorSocket, messageToReceive, MAXDATASIZE, 0);
+
+    printf("%s\n", messageToReceive);
 
     close(fileDescriptorSocket);
 

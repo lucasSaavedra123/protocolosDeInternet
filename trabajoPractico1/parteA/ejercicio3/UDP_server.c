@@ -10,6 +10,7 @@
 #include <sys/types.h>  //Define los tipos de datos como lo es 'id_t'
 #include <sys/socket.h> //Define los tipos de datos como lo es 'sockaddr'
 
+#include <arpa/inet.h>  //Define operaciones de internet
 
 #define PORT 5500  // Puerto al cual nos conectaremos
 #define MAXDATASIZE 100
@@ -47,10 +48,12 @@ int main(){
     int fileDescriptorSocket;
 
     struct sockaddr_in socketAddress;
+    struct sockaddr_in clientAddress;
 
-    socklen_t socketAddressSize;
+    socklen_t addressSize = sizeof(struct sockaddr_in);;
 
     char messageReceived[MAXDATASIZE];
+    char messageToSent[MAXDATASIZE];
 
     int hostAddressSize;
     int returnedInteger;
@@ -67,9 +70,18 @@ int main(){
     reportErrorIfNecessary(returnedInteger,"bind");
 
     while(1){
-        
-        recv(fileDescriptorSocket, messageReceived, MAXDATASIZE, 0);
-        printf("%s\n", messageReceived);
+
+        returnedInteger = recvfrom(fileDescriptorSocket, messageReceived, MAXDATASIZE, 0, (struct sockaddr *) &(clientAddress), (socklen_t *) &addressSize );
+        reportErrorIfNecessary(returnedInteger, "recvfrom");
+
+        messageReceived[MAXDATASIZE-1] = '\0';
+        printf("Message received from (%s): %s\n", inet_ntoa(clientAddress.sin_addr), messageReceived);
+
+        printf("Type answer: ");
+        receiveMessageFromKeyboard(messageToSent);
+
+        returnedInteger = sendto(fileDescriptorSocket, messageToSent, MAXDATASIZE, 0, (struct sockaddr *) &(clientAddress), addressSize);
+        reportErrorIfNecessary(returnedInteger, "sendto");
 
     }
 
