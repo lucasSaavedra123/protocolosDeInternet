@@ -10,7 +10,7 @@
 #include <sys/types.h>  //Define los tipos de datos como lo es 'id_t'
 #include <sys/socket.h> //Define los tipos de datos como lo es 'sockaddr'
 
-#define PORT 5005
+#define PORT 4500
 #define MAXDATASIZE 100
 
 void reportErrorIfNecessary(int value, char * string){

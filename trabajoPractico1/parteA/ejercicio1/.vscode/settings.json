@@ -3,6 +3,9 @@
         "in.h": "c",
         "socket.h": "c",
         "netdb.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "wait.h": "c",
+        "unistd.h": "c",
+        "types.h": "c"
     }
 }

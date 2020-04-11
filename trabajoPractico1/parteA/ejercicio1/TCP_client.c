@@ -10,7 +10,7 @@
 #include <sys/types.h>  //Define los tipos de datos como lo es 'id_t'
 #include <sys/socket.h> //Define los tipos de datos como lo es 'sockaddr'
 
-#define PORT 4700
+#define PORT 5010
 #define MAXDATASIZE 100
 
 void reportErrorIfNecessary(int value, char * string){
@@ -57,15 +57,16 @@ int main(int quantityOfArgumentsReceived, char * listOfArguments[]){
     returnedInteger = connect( fileDescriptorSocket, (struct sockaddr *) &socketAddress, sizeof(struct sockaddr) ); //Conecta el socket
     reportErrorIfNecessary(returnedInteger, "connect");
 	
-    //Con 'disc' el servidor nos cierra la conexión
+    quantityOfBytesReceived = recv(fileDescriptorSocket, messageReceive, MAXDATASIZE, 0);
+
+    //Con 'disc' el servidor nos cierra la conexión o si el servidor manda mensajes vacios
     while( strcmp(messageReceive, "disc") != 0 ){
+        messageReceive[quantityOfBytesReceived] = '\0';
+
+        printf("Message Received: %s [%ld bytes]\n", messageReceive, strlen(messageReceive));
 
         quantityOfBytesReceived = recv(fileDescriptorSocket, messageReceive, MAXDATASIZE, 0);
         reportErrorIfNecessary(returnedInteger, "recv");
-
-        messageReceive[quantityOfBytesReceived] = '\0';
-
-        printf("Message Received: %s [%d bytes]\n", messageReceive, strlen(messageReceive));
 
     }
 

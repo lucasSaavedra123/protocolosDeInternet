@@ -52,6 +52,7 @@ int main( int quantityOfArgumentsReceived, char * listOfArguments[] ){
     char * messageToSent = listOfArguments[2];
     char messageToReceive[MAXDATASIZE];
 
+
     int returnedInteger;
     struct hostent * hostEntry;
 
@@ -80,9 +81,11 @@ int main( int quantityOfArgumentsReceived, char * listOfArguments[] ){
     returnedInteger = send(fileDescriptorSocket, messageToSent, strlen(messageToSent) * sizeof(char), 0);
     reportErrorIfNecessary(returnedInteger, "send");
 
+    printf("Message Sent: %s\n", messageToSent);
+
     returnedInteger = recv(fileDescriptorSocket, messageToReceive, MAXDATASIZE, 0);
 
-    printf("%s\n", messageToReceive);
+    printf("Message Received: %s\n", messageToReceive);
 
     close(fileDescriptorSocket);
 

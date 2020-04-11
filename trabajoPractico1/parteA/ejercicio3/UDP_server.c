@@ -1,3 +1,4 @@
+
 #include <stdio.h>  //Libreria estandar de C
 #include <stdlib.h> //Libreria que permite el manejo de la memoria, entre otras cosas mas
 #include <errno.h>  //Define la variable 'int errno' (Error Number)
@@ -70,25 +71,32 @@ int main(){
     reportErrorIfNecessary(returnedInteger,"bind");
 
     while(1){
+	memset(messageReceived, 0, MAXDATASIZE);
 
         returnedInteger = recvfrom(fileDescriptorSocket, messageReceived, MAXDATASIZE, 0, (struct sockaddr *) &(clientAddress), (socklen_t *) &addressSize );
         reportErrorIfNecessary(returnedInteger, "recvfrom");
+	
+	printf("%ld\n", strlen(messageReceived) );
 
-        messageReceived[MAXDATASIZE-1] = '\0';
         printf("Message received from (%s): %s\n", inet_ntoa(clientAddress.sin_addr), messageReceived);
-
-        returnedInteger = connect(fileDescriptorSocket, (struct sockaddr *) &(clientAddress), addressSize);
-        reportErrorIfNecessary(returnedInteger, "connect");
 
         printf("Type answer: ");
         receiveMessageFromKeyboard(messageToSent);
-        
-        returnedInteger = send(fileDescriptorSocket, messageToSent, strlen(messageToSent) * sizeof(char),0);
-        reportErrorIfNecessary(returnedInteger,"send");
 
-        /*returnedInteger = sendto(fileDescriptorSocket, messageToSent, MAXDATASIZE, 0, (struct sockaddr *) &(clientAddress), addressSize);
+        returnedInteger = sendto(fileDescriptorSocket, messageToSent, MAXDATASIZE, 0, (struct sockaddr *) &(clientAddress), addressSize);
         reportErrorIfNecessary(returnedInteger, "sendto");
-        */
+
+	/*
+		Se podria haber usado "connect()" que lo que hace es vincular la dirección del cliente de manera que pueda usar el send para mandar
+		mensajes. Si hace connect(cliente)->send(mensaje)->connect(clienteDeReset)
+
+		El "clienteDeReset" es un cliente que tiene la dirección todo en 0. Si no lo hacemos, no nos permite recibir/mandar mensajes
+		de otro cliente.
+
+		Preferí usar recvfrom y sendto por que en realidad en UDP no hacemos una conexión.
+	*/
+
+
     }
 
     close(fileDescriptorSocket);

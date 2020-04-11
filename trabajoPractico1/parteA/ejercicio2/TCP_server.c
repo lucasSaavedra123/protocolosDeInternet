@@ -13,7 +13,7 @@
 
 #include <arpa/inet.h>  //Define operaciones de internet
 
-#define PORT 4500
+#define PORT 5005
 #define BACKLOG 5 //Define el largo maximo de la cola de conexiones pendientes del servidor
 #define MAXDATASIZE 100
 

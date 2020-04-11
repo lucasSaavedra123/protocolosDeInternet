@@ -13,9 +13,27 @@
 
 #include <arpa/inet.h>  //Define operaciones de internet
 
-#define PORT 5010
-#define BACKLOG 5 //Define el largo maximo de la cola de conexiones pendientes del servidor
-#define MAXDATASIZE 100
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/stat.h>
+
+#define PORT            4500
+#define BACKLOG         5 //Define el largo maximo de la cola de conexiones pendientes del servidor
+#define MAXDATASIZE     100
+#define MAXMESSAGES     1024
+#define MAXALIASSIZE    15
+
+typedef char shm_message[MAXDATASIZE];
+
+struct shm_register{
+    char alias[MAXALIASSIZE];
+    shm_message message;
+};
+
+struct shmSegment{
+    int first, last, count;
+    struct shm_register registers[MAXMESSAGES];
+};
 
 void reportErrorIfNecessary(int value, char * string){
     if(value == -1){
@@ -44,6 +62,16 @@ void receiveMessageFromKeyboard(char * string){
 
 }
 
+void registerMessageInShm(struct shmSegment * address , char message[MAXDATASIZE], char alias[MAXALIASSIZE]){
+
+        if(address -> count < MAXMESSAGES){
+            address->first = (address->first+1);
+            strcpy( ( (address->registers[address->first]).message), message);
+            strcpy( ( (address->registers[address->first]).alias), alias);
+            address->count++;
+        }
+
+}
 
 int main(){
     printf("Servidor Concurrente TCP\n");
@@ -57,10 +85,28 @@ int main(){
     socklen_t socketAddressSize;
 
     char messageToSent[MAXDATASIZE];
+    char messageReceive[MAXDATASIZE];
 
     int returnedInteger; //Lo uso para controlar errores
     int processId;
     int quantityOfBytesReceived;
+
+    int segmentID = 0;
+    key_t shmKey = 0;
+    struct shmSegment * sharedMemoryAddress = NULL;
+
+    shmKey = ftok("sniffer.c", (int) 'A');
+    segmentID = shmget( shmKey, (size_t) sizeof(struct shmSegment), IPC_EXCL | S_IRUSR | S_IWUSR );
+    reportErrorIfNecessary(segmentID, "shmget");
+
+    sharedMemoryAddress = (struct shmSegment *) shmat(segmentID, NULL, 0);/*El null es para decirle que el sistema nos asigne
+                                                                            la dirección*/
+
+    printf("Shared Memory attached at address %p\n", sharedMemoryAddress);
+
+    sharedMemoryAddress->first  = 0;
+    sharedMemoryAddress->last   = 1;
+    sharedMemoryAddress->count  = 0;
 
     //El cero indica que solamente un solo protocolo estará usando este socket
     fileDescriptorSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -91,14 +137,22 @@ int main(){
         printf("Server: I've got connection from: %s\n", inet_ntoa(newClientSocketAddress.sin_addr)); //inet_ntoa convierte la direcion IP
                                                                                                       //que esta orden de la red
                                                                                                       //en un string con la notación X.X.X.X
-        
         processId = fork();
 
         if(processId != 0){
-                    
-            //Con 'disc' cerramos la conexión
             
-            while( strcmp(messageToSent, "disc") != 0 ){
+            //Ambas partes se tienen que poner de acuerdo para desconectarse
+            while( strcmp(messageToSent, "disc") != 0 || strcmp(messageReceive, "disc") != 0 ){
+
+                quantityOfBytesReceived = recv(fileDescriptorNewClientSocket, messageReceive, MAXDATASIZE, 0);
+                //Utilizamos recv() para recibir mensajes que llegan a un socket
+                //Devuelve la cantidad de bytes recibidos
+                reportErrorIfNecessary(quantityOfBytesReceived, "recv");
+                messageReceive[quantityOfBytesReceived] = '\0';
+
+                printf("Message Received: %s\n", messageReceive);
+
+                registerMessageInShm(sharedMemoryAddress,messageReceive, "client");
 
                 printf("Type the message to sent: ");
                 receiveMessageFromKeyboard(messageToSent);
@@ -107,16 +161,19 @@ int main(){
                 reportErrorIfNecessary(returnedInteger, "send");
                 printf("Message Sent!\n\n");
 
+                registerMessageInShm(sharedMemoryAddress,messageToSent, "server");
             }
-
+            
         }
 
         else{
             close(fileDescriptorNewClientSocket);
         }
 
-        while(waitpid(-1, NULL, WNOHANG) > 0); //Espera que un proceso cambie de estado
 
+
+        //while(waitpid(-1, NULL, WNOHANG) > 0);
+        //Espera que un proceso cambie de estado
     }
 
     return 0;
