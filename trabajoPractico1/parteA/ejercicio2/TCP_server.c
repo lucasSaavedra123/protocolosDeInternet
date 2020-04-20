@@ -13,7 +13,7 @@
 
 #include <arpa/inet.h>  //Define operaciones de internet
 
-#define PORT 5005
+#define PORT 5007
 #define BACKLOG 5 //Define el largo maximo de la cola de conexiones pendientes del servidor
 #define MAXDATASIZE 100
 
@@ -83,9 +83,9 @@ int main(){
     returnedInteger = listen(fileDescriptorSocket, BACKLOG); //Ponemos en modo pasivo al servidor
     reportErrorIfNecessary(returnedInteger, "listen");
 
-    while(1){
+    socketAddressSize = sizeof(struct sockaddr_in);
 
-        socketAddressSize = sizeof(struct sockaddr_in);
+    while(1){
 
         fileDescriptorNewClientSocket = accept( fileDescriptorSocket, (struct sockaddr * ) &newClientSocketAddress, &socketAddressSize ); //Aceptamos una conexión con el socket
         reportErrorIfNecessary(fileDescriptorNewClientSocket, "accept");
@@ -123,10 +123,6 @@ int main(){
             close(fileDescriptorNewClientSocket);
         }
 
-
-
-        //while(waitpid(-1, NULL, WNOHANG) > 0);
-        //Espera que un proceso cambie de estado
     }
 
     return 0;

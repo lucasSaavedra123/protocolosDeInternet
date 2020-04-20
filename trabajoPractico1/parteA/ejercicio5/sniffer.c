@@ -8,8 +8,6 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 
-
-
 #define MAXDATASIZE 100
 #define MAXMESSAGES 1024
 
@@ -77,8 +75,6 @@ void main(){
     signalAction.sa_handler = &Free_SHM;
     sigaction(SIGINT, &signalAction, NULL);
 
-
-
     segmentID = shmget( shmKey, (size_t) sizeof(struct shmSegment), IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
     reportErrorIfNecessary(segmentID, "shmget");
 
@@ -93,7 +89,7 @@ void main(){
             strcpy( message,(sharedMemoryAddress->registers[sharedMemoryAddress->last]).message );
 
             printf("%s:%s\n", alias, message);
-            sharedMemoryAddress->last++;
+            sharedMemoryAddress->last = (sharedMemoryAddress->last + 1) % MAXMESSAGES ;
             sharedMemoryAddress->count--;
         }
         else sleep(5);

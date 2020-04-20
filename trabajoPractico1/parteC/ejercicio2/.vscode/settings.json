@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "inet.h": "c",
+        "types.h": "c",
+        "select.h": "c",
+        "unistd.h": "c",
+        "curses.h": "c"
+    }
+}

@@ -86,7 +86,9 @@ void main(){
 
     while(1){
         if(sharedMemoryAddress->count < MAXMESSAGES){
-            sharedMemoryAddress->first = (sharedMemoryAddress->first+1);
+            sharedMemoryAddress->first = (sharedMemoryAddress->first+1) % MAXMESSAGES;  //Logra que first
+                                                                                        //vaya de 0 a MAXMESSAGES
+                                                                                        //y luego vuelva a 0
             printf("Type message number %d:", sharedMemoryAddress->first);
             receiveMessageFromKeyboard(sharedMemoryAddress->messages[sharedMemoryAddress->first]);
             sharedMemoryAddress->count++;

@@ -9,8 +9,9 @@
 
 #include <sys/types.h>  //Define los tipos de datos como lo es 'id_t'
 #include <sys/socket.h> //Define los tipos de datos como lo es 'sockaddr'
+#include <sys/select.h> //Define lo necesario para el uso de select
 
-#define PORT 4510
+#define PORT 5007
 #define MAXDATASIZE 100
 
 void reportErrorIfNecessary(int value, char * string){
@@ -20,30 +21,18 @@ void reportErrorIfNecessary(int value, char * string){
     }
 }
 
-void receiveMessageFromKeyboard(char * string){
-
-    int index = 0;
-
-    char character = getchar();
-    fflush(stdin);
-
-    while(index < MAXDATASIZE && character != 10){
-        string[index] = character;
-        
-        fflush(stdin);
-        character = getchar();
-        
-        index++;
-    }
-
-    string[index] = '\0';
-
-}
-
 int main(int quantityOfArgumentsReceived, char * listOfArguments[]){
     printf("Cliente TCP\n");
 
     int fileDescriptorSocket;
+    int maxFileDescriptor = 0;
+    int fileDescriptorIndex = 0;
+    
+    //FLAGS
+    int isConnectionClosed = 0;
+
+    fd_set fileDescriptorsSet;
+    fd_set readFileDescriptorsSet;
 
     //struct hostent es para poder representar un 'record', 'entry', o entrada en la base de datos del host
     struct hostent * hostEntry;
@@ -51,9 +40,17 @@ int main(int quantityOfArgumentsReceived, char * listOfArguments[]){
 
     char messageToSent[MAXDATASIZE];
     char messageReceive[MAXDATASIZE];
+    char character;
 
+    //CONTROL INTEGERS
     int returnedInteger; //Lo uso para controlar errores
     int quantityOfBytesReceived;
+    int quantityOfCharactersTyped;
+
+    socklen_t socketAddressSize;
+
+    FD_ZERO(&fileDescriptorsSet);
+    FD_ZERO(&readFileDescriptorsSet);
 
     if(quantityOfArgumentsReceived != 2){
         fprintf(stderr, "usage: client hostname"); //Lo mandamos al stream de errores
@@ -78,27 +75,44 @@ int main(int quantityOfArgumentsReceived, char * listOfArguments[]){
     returnedInteger = connect( fileDescriptorSocket, (struct sockaddr *) &socketAddress, sizeof(struct sockaddr) ); //Conecta el socket
     reportErrorIfNecessary(returnedInteger, "connect");
 
+    if(fileDescriptorSocket > STDIN_FILENO)
+        maxFileDescriptor = fileDescriptorSocket;
+    else{
+        maxFileDescriptor = STDIN_FILENO;
+    }
+
+    fflush(stdin);
+
+
     //Ambas partes se tienen que poner de acuerdo para desconectarse
-    while( strcmp(messageToSent, "disc") != 0 || strcmp(messageReceive, "disc") != 0 ){
+    while( !isConnectionClosed ){
+        
+        FD_ZERO(&readFileDescriptorsSet);
+        FD_SET(fileDescriptorSocket, &readFileDescriptorsSet); 
+        FD_SET(STDIN_FILENO, &readFileDescriptorsSet); 
 
-        printf("Type the message to sent: ");
-        receiveMessageFromKeyboard(messageToSent);
+        returnedInteger = select(maxFileDescriptor+1, &readFileDescriptorsSet, NULL, NULL, NULL);
+        reportErrorIfNecessary(returnedInteger, "select");
 
-        returnedInteger = send(fileDescriptorSocket, messageToSent, strlen(messageToSent) * sizeof(char), 0); //Utilizamos send para poder mandar un mensaje sobre un socket
-        reportErrorIfNecessary(returnedInteger, "send");
-        printf("Message Sent!\n");
+        if( FD_ISSET(fileDescriptorSocket, &readFileDescriptorsSet) ){
+            quantityOfBytesReceived = recv(fileDescriptorSocket, messageReceive, MAXDATASIZE, 0);
+            reportErrorIfNecessary(returnedInteger, "recv");
 
-        quantityOfBytesReceived = recv(fileDescriptorSocket, messageReceive, MAXDATASIZE, 0);
-        reportErrorIfNecessary(returnedInteger, "recv");
+            if(quantityOfBytesReceived <= 0){
+                printf("Connection closed...");
+                close(fileDescriptorSocket);
+                isConnectionClosed = 1;
+            }
+            else{
+                printf("Message Received: %s\n", messageReceive);
+            }
 
-        messageReceive[quantityOfBytesReceived] = '\0';
+        }
 
-        printf("Message Received: %s\n\n", messageReceive);
-
-        if(quantityOfBytesReceived == 0){
-                    printf("Server Disconnected...\n");
-                    close(fileDescriptorSocket);
-                    exit(1);
+        if( FD_ISSET(STDIN_FILENO, &readFileDescriptorsSet) ){
+            read(STDIN_FILENO, messageToSent, MAXDATASIZE);
+            send(fileDescriptorSocket, messageToSent, strlen(messageToSent) * sizeof(char), 0 );
+            bzero(messageToSent,MAXDATASIZE);
         }
 
     }

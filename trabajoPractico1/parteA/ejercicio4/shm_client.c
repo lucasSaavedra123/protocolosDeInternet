@@ -63,7 +63,7 @@ void main(){
     
         if( sharedMemoryAddress->count > 0 ){
             printf("New Message: %s\n", sharedMemoryAddress->messages[sharedMemoryAddress->last]);
-            sharedMemoryAddress->last++;
+            sharedMemoryAddress->last = (sharedMemoryAddress->last + 1) % MAXMESSAGES ;
             sharedMemoryAddress->count--;
         }
         else sleep(5);

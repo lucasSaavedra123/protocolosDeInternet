@@ -17,7 +17,7 @@
 #include <sys/shm.h>
 #include <sys/stat.h>
 
-#define PORT            4500
+#define PORT            4510
 #define BACKLOG         5 //Define el largo maximo de la cola de conexiones pendientes del servidor
 #define MAXDATASIZE     100
 #define MAXMESSAGES     1024
@@ -65,7 +65,7 @@ void receiveMessageFromKeyboard(char * string){
 void registerMessageInShm(struct shmSegment * address , char message[MAXDATASIZE], char alias[MAXALIASSIZE]){
 
         if(address -> count < MAXMESSAGES){
-            address->first = (address->first+1);
+            address->first = (address->first+1) % MAXMESSAGES;
             strcpy( ( (address->registers[address->first]).message), message);
             strcpy( ( (address->registers[address->first]).alias), alias);
             address->count++;
@@ -149,6 +149,12 @@ int main(){
                 //Devuelve la cantidad de bytes recibidos
                 reportErrorIfNecessary(quantityOfBytesReceived, "recv");
                 messageReceive[quantityOfBytesReceived] = '\0';
+
+                if(quantityOfBytesReceived == 0){
+                    printf("Client Disconnected...\n");
+                    close(fileDescriptorNewClientSocket);
+                    exit(1);
+                }
 
                 printf("Message Received: %s\n", messageReceive);
 

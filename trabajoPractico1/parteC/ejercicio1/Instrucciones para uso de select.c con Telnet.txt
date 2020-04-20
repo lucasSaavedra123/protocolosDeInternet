@@ -1,0 +1,105 @@
+Compilar.
+
+$ gcc -g select.c -o select
+
+Ejecutar
+
+$ ./select
+
+Server-socket()  OK...
+
+Server-setsockopt() OK...
+
+Server-bind() OK...
+
+Server-listen() OK...
+
+Dejar el programa corriendo en background (Ctrl + z).
+
+$ ./select
+
+Server-socket() iOK...
+
+Server-setsockopt() OK...
+
+Server-bind() OK...
+
+Server-listen() OK...
+
+ 
+
+[1]+  Stopped                 ./select
+
+$ bg
+
+[1]+ ./select &
+
+$ ps aux | grep select
+
+     27474  0.0  0.2  1384  292 pts/2    S+   14:32   0:00 ./select
+
+     27507  0.0  0.5  3724  668 pts/3    S+   14:34   0:00 grep select
+
+$ netstat -a |grep 2020
+
+tcp        0      0 *:2020    *:*                 LISTEN
+
+
+Hacer Telnet de otras computadoras o ventanas usando hostname o direcci�n IP
+
+$ telnet hostname 2020
+
+Trying 203.106.93.94...
+
+Connected to ...... (203.106.93.94).
+
+Escape character is '^]'.
+
+^]
+
+telnet> mode line
+
+$ Server-select() OK...
+
+Server-accept() OK...
+
+./select: Nueva conexi�n desde 203.106.93.94 en socket 4
+
+Server-select() OK...
+
+...
+
+Server-accept() OK...
+
+./select: Nueva conexi�n desde 203.106.93.94 en socket 5
+
+Server-select() is OK...
+
+Server-select() OK...
+
+...
+
+Server-select() OK...
+
+Server-select() OK...
+
+Server-accept() OK...
+
+./select: Nueva conexi�n desde 203.106.93.94 en socket 6
+
+Cuando los clientes se deconectan
+...
+
+Server-select() OK...
+
+Server-select() OK...
+
+./select: socket 5 desconectado
+
+Server-select() OK...
+
+./select: socket 6 desconectado
+
+Server-select() OK...
+
+./select: socket 4 desconectado
