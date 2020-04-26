@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <title>The Admin or Client Web | Admin</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta charset="UTF-8">
+
+        <!--For CSS, we are going to use Bootstrap-->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+        <!--Custom Colors and properties-->
+        <link rel="stylesheet" href="custom.css"/>
+        <link rel="stylesheet" href="modernStyle.css"/>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+    </head>
+
+    <body>
+
+        <div class="container h-75 w-50 rounded jumbotron my-auto">
+            <div class="row h-25" style="text-align: center;">
+                <h1 class="w-100 font-weight-bold">User Status and Configuration</h1>
+            </div>
+
+            <div class="row h-50" style="text-align: center;">
+                <table class="table table-hover table-dark">
+                    <tbody>
+                        <tr>
+                            <td class="w-50">Connection Status</td>
+                            <td class="w-50"><span id="connectionStatus" class="disconnected">&#11044</span></td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">User ID</td>
+                            <td class="w-50" id="userID">-</td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">Connected at</td>
+                            <td class="w-50" id="connectedTime">--:--:--</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row h-25 justify-content-center align-items-center">
+                
+                <div class="col d-flex justify-content-center">
+                    <div id="connectButton" class="highlight" onclick="tryConnection();">
+                        Connect
+                    </div>
+                </div>
+
+                <div class="col d-flex justify-content-center" onclick="tryDisconnection();">
+                    <div id="disconnectButton" class="highlight">
+                        Disconnect
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!--Scripts needed to run Bootstrap and Toastr-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="modernStyle.js"></script>
+        <script src="app.js"></script>
+        <script src="client.js"></script>
+
+    </body>
+
+</html>

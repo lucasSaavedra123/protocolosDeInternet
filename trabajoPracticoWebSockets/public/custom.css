@@ -1,0 +1,65 @@
+:root {
+    --mainColor: black;
+    --mainColorFont: #ffffff;
+    --generalTransitionTime: 0.5s;
+    --connectedColor: #55efc4;
+    --disconnectedColor: #d63031;
+    --pendingColor: #fdcb6e;
+}
+
+*{
+    font-family: "Open Sans", sans-serif;
+    font-weight: bold;
+    color: var(--mainColorFont);
+}
+
+html, body {
+    height: 100%;
+    background-color: var(--mainColor) !important;
+}
+
+table{
+    background-color: var(--mainColor) !important;
+}
+
+img{
+    margin: 5px;
+
+    height: 20px;
+    width: 20px;
+
+    opacity: 0.5;
+}
+
+img:hover{
+    opacity: 1;
+}
+
+.container{
+    background-color: var(--mainColor) !important;
+}
+
+.connected{
+    color: var(--connectedColor);
+}
+
+.disconnected{
+    color: var(--disconnectedColor);
+}
+
+.pending{
+    color: var(--pendingColor);
+}
+
+#loadingSignal{
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 5rem;
+    height: 5rem;
+    display: none;
+}
+
+#listAdvise{
+    margin-top: auto;
+    margin-bottom: auto;
+}

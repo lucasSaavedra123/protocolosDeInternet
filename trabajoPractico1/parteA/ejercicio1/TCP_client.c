@@ -60,7 +60,7 @@ int main(int quantityOfArgumentsReceived, char * listOfArguments[]){
     quantityOfBytesReceived = recv(fileDescriptorSocket, messageReceive, MAXDATASIZE, 0);
 
     //Con 'disc' el servidor nos cierra la conexión o si el servidor manda mensajes vacios
-    while( strcmp(messageReceive, "disc") != 0 ){
+    while( strcmp(messageReceive, "disc") != 0 && strlen(messageReceive) != 0 ){
         messageReceive[quantityOfBytesReceived] = '\0';
 
         printf("Message Received: %s [%ld bytes]\n", messageReceive, strlen(messageReceive));
