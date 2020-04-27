@@ -71,12 +71,12 @@ int main(){
     reportErrorIfNecessary(returnedInteger,"bind");
 
     while(1){
-	memset(messageReceived, 0, MAXDATASIZE);
+	    memset(messageReceived, 0, MAXDATASIZE);
 
         returnedInteger = recvfrom(fileDescriptorSocket, messageReceived, MAXDATASIZE, 0, (struct sockaddr *) &(clientAddress), (socklen_t *) &addressSize );
         reportErrorIfNecessary(returnedInteger, "recvfrom");
 	
-	printf("%ld\n", strlen(messageReceived) );
+	    printf("%ld\n", strlen(messageReceived) );
 
         printf("Message received from (%s): %s\n", inet_ntoa(clientAddress.sin_addr), messageReceived);
 

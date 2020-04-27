@@ -176,10 +176,8 @@ int main(){
             close(fileDescriptorNewClientSocket);
         }
 
+        while(waitpid(-1, NULL, WNOHANG) > 0);
 
-
-        //while(waitpid(-1, NULL, WNOHANG) > 0);
-        //Espera que un proceso cambie de estado
     }
 
     return 0;

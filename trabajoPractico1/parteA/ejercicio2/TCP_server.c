@@ -123,6 +123,8 @@ int main(){
             close(fileDescriptorNewClientSocket);
         }
 
+        while(waitpid(-1, NULL, WNOHANG) > 0);
+
     }
 
     return 0;
