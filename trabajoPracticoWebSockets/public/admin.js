@@ -13,8 +13,8 @@ function connect(){
     socket.on('disconnect', () => {isAdminConnected = false; finishDisconnection();});
 
     socket.on('update table', (clientsArray) => { addClientsToTable(clientsArray) });
-    socket.on('new client', (client) => { addClientToTable(client) });
-    socket.on('update client status', (clientID) => { updateClientStatus(clientID) });
+    socket.on('new client', (client) => { addClientToTable(client); toastr.success('New client connected!'); });
+    socket.on('update client status', (clientID) => { updateClientStatus(clientID); toastr.warning('Client disconnected!'); });
 }
 
 function tryConnection(){
