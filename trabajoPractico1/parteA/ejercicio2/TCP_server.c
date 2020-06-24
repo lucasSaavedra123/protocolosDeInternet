@@ -91,8 +91,7 @@ int main(){
         reportErrorIfNecessary(fileDescriptorNewClientSocket, "accept");
         printf("Server: I've got connection from: %s\n", inet_ntoa(newClientSocketAddress.sin_addr)); //inet_ntoa convierte la direcion IP
                                                                                                       //que esta orden de la red
-                                                                                                      //en un string con la notación X.X.X.X
-        
+                                                                                                      //en un string con la notación X.X.X.X 
         processId = fork();
 
         if(processId != 0){
